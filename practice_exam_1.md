@@ -6,15 +6,26 @@ date: "10/9/2019"
 
 ```{r}
 
-crab <- read.table('crab.txt')
+# load crab data from the appropriate file
+# this assumes the file is in the current working directory
+
+crab <- read.table('crab.txt') 
 
 require(MASS)
 
+# look at the column names of birthwt and make sure it loaded correctly
 head(birthwt)
 
+# attach the birthwt data easy access. no need to use 'birthwt$' every time now. 
+# I do this for better readability
 attach(birthwt)
 
+# define bwt2 as a binary variable 
 bwt2 <- ifelse(bwt<2400, 1, 0)
+
+# alternate form:
+# bwt2 <- as.numeric(bwt<2400)
+# because changing a bolean to numeric is T-> 1 and F -> 0
 
 glm(bwt2~ age + race + smoke, family = binomial(link = logit))
 
@@ -50,19 +61,21 @@ while (n<=6){
 
 ```{r}
 
+head(crab)
+
 attach(crab)
 
 PosiNegLoglik <- function(X,y,b){
-  lambda <- exp(X %*% b)
-  Loglik <- sum(y*log(lambda)-lambda)
+  loglambda <- exp(X %*% b)
+  Loglik <- sum(y*-exp(lambda))
   return(-Loglik)
 }
 
-y = V6
+y = V6 #V6 in this data is the column that contains integer values from 1 to ~15
 
-X = cbind(1, V4, V5 )
+X = cbind(1, V4, V5 ) # in this case, V4 and V5 are the only non-integer comumns. 
 
-b.ini = c(0,0,0)
+b.ini = c(0,0,0) # initial beta values for optimization
 
 optim(par=b.ini, fn=PosiNegLoglik, X=X, y=y)
 
